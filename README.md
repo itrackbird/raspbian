@@ -65,4 +65,4 @@ If you want to automatically resize your / partition, just type the following (a
 - [ ] Kubernetes安装
 - [ ] Drone安装
 - [ ] GIPO编程
-- [ ] ....
+- [ ] Portainer 
