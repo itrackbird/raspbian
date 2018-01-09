@@ -14,7 +14,7 @@
 * [TF卡格式化工具](https://www.sdcard.org/downloads/formatter_4/)(SD Card Fornatter)
 * [Win32DiskImager](https://sourceforge.net/projects/win32diskimager/)烧录工具安装
 
-首先格式化工具将TF卡格式化，目的是为了将TF卡文件系统刷成FAT32格式，之后打卡win32DiskImager选择镜像文件导入到TF卡中，等结束之后，将TF卡插入树莓派中，上电重启即可。
+首先格式化工具将TF卡格式化，目的是为了将TF卡文件系统刷成FAT32格式，之后打开win32DiskImager选择镜像文件导入到TF卡中，等结束之后，将TF卡插入树莓派中，上电重启即可。
 
 > **提示：需要从电脑中安全拔出TF卡，以防止TF卡损坏导致树莓派违法识别TF卡**
 
@@ -57,6 +57,12 @@ If you want to automatically resize your / partition, just type the following (a
 /usr/bin/rootfs-expand
 ```
 
-### 总结
-
 以上操作都没有报错后，就可以使用树莓配的CentOS系统。
+
+### todo
+
+- [ ] Docker安装
+- [ ] Kubernetes安装
+- [ ] Drone安装
+- [ ] GIPO编程
+- [ ] ....
