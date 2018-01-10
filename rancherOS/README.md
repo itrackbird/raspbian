@@ -38,7 +38,7 @@ Server:
  Experimental: true
 ```
 
-因为我习惯通过root权限操作，在切换root前，修改root密码。
+接下来切换至root权限操作，在切换root前，修改root密码。
 
 ```she
 [rancher@rancher ~]$ sudo passwd root
@@ -110,3 +110,38 @@ eth0      Link encap:Ethernet  HWaddr B8:27:EB:B1:81:D4
 ```
 
 找到对应的IP之后，再浏览器中直接输入IP，出现nginx的欢迎页面则表示正常。
+
+### 文件扩展
+
+当我们通过`df -h`发现磁盘大小为1个G左右，这时我们需要通过文件扩展命令来加载剩余的磁盘空间，详细操作步骤参考rancherOS[官网介绍](http://rancher.com/docs/os/v1.1/en/running-rancheros/server/raspberry-pi/)，以下是个人操作记录日志
+
+```she
+[root@rancher ~]# fdisk /dev/mmcblk0
+
+Welcome to fdisk (util-linux 2.29.2).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+
+Command (m for help):
+
+
+Command (m for help): n
+Partition type
+   p   primary (2 primary, 0 extended, 2 free)
+   e   extended (container for logical partitions)
+Select (default p): p
+Partition number (3,4, default 3):
+First sector (4194304-62333951, default 4194304):
+Last sector, +sectors or +size{K,M,G,T,P} (4194304-62333951, default 62333951):
+
+Created a new partition 3 of type 'Linux' and of size 27.7 GiB.
+
+Command (m for help): w
+The partition table has been altered.
+Calling ioctl() to re-read partition table.
+Re-reading the partition table failed.: Device or resource busy
+
+The kernel still uses the old table. The new table will be used at the next reboot or after you run partprobe(8) or kpartx(8).
+```
+
