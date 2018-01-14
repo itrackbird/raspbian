@@ -72,3 +72,11 @@ Server:
   Experimental: true
 ```
 
+### TODO
+
+- [x] [wifi热点设置](https://github.com/itrackbird/raspbian/tree/master/debian/wifi.md)
+
+
+- [ ] [gogs安装使用](https://github.com/itrackbird/raspbian/tree/master/debian/gogs.md)
+- [ ] [kubernet安装使用](https://github.com/itrackbird/raspbian/tree/master/debian/kubernet.md)
+
