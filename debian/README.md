@@ -39,6 +39,8 @@ root@raspberrypi:/etc/apt/sources.list.d# cat docker.list
 deb [arch=armhf] https://mirrors.aliyun.com/docker-ce/linux/raspbian/ stretch edge
 ```
 
+> **更换软件源后执行`apt-get update`**
+
 #### 安装
 
 执行下面，等待结束即可。
