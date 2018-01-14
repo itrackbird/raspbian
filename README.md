@@ -8,13 +8,13 @@
 * [rancherOS](https://github.com/itrackbird/raspbian/tree/master/rancherOS)
 * [debian](https://github.com/itrackbird/raspbian/tree/master/debian)
 
-### 功能
+### TODO
 
 * GPIO编程
 * Docker学习
 * Kubernets学习
 * 智能家电
+* CI/CD搭建
 
 
 
-### 

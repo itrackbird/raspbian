@@ -4,7 +4,7 @@
 
 ### 安装步骤
 
-安装步骤同[CentOS](https://github.com/itrackbird/raspbian)安装过程类似，首先下载ISO镜像，格式化TF卡，烧录镜像。
+安装步骤同[CentOS](https://github.com/itrackbird/raspbian/tree/master/centOS)安装过程类似，首先下载ISO镜像，格式化TF卡，烧录镜像。
 
 > **镜像地址见[官方地址](http://downloads.raspberrypi.org/raspbian/images)，选择stretch版本，以下操作都是在stretch版本上进行**
 >
@@ -14,7 +14,7 @@
 
 当安装debianOS后，通过网线连接树梅派网卡，获取到IP后，通过ssh工具连接到系统，用户名密码默认为**pi**/**raspberry**。
 
-> **如何获取树莓派系统IP参考[CentOS安装过程](https://github.com/itrackbird/raspbian)**
+> **如何获取树莓派系统IP参考[CentOS安装过程](https://github.com/itrackbird/raspbian/tree/master/centOS)**
 
 ### docker安装
 
