@@ -10,11 +10,10 @@
 
 ### TODO
 
-* GPIO编程
-* Docker学习
-* Kubernets学习
-* 智能家电
-* CI/CD搭建
-
+- [ ] GPIO编程
+- [ ] Docker学习
+- [ ] [安装Kubernets](https://github.com/itrackbird/raspbian/kubernets)
+- [ ] 智能家电
+- [ ] CI/CD搭建
 
 
