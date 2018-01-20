@@ -24,7 +24,7 @@ Mem:            927          63         705           6         158         808
 Swap:             0           0           0
 ```
 
-> **树莓派root登录参考[root用户设置](https://github.com/itrackbird/raspbian/tree/master/debian/root.md)**
+> **树莓派root登录参考[root用户设置](https://github.com/itrackbird/raspbian/blob/master/kubernets/root.md)**
 
 #### 安装etcd
 
