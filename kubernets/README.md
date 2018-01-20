@@ -77,7 +77,7 @@ export HostIP=192.168.137.24
 docker run -d -e ETCD_UNSUPPORTED_ARCH=arm -p 2380:2380 -p 2379:2379 --name etcd pzm --name etcd0 -advertise-client-urls http://${HostIP}:2379 -listen-client-urls http://0.0.0.0:2379 -initial-advertise-peer-urls http://${HostIP}:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster-1 -initial-cluster etcd0=http://${HostIP}:2380 -initial-cluster-state new
 ```
 
-之后通过`etcdctl --endpoints=http://${NODE1}:2379 member list`来验证是否正确
+之后通过`etcdctl --endpoints=http://${HostIP}:2379 member list`来验证是否正确
 
 ```shell
 root@raspberrypi:/opt/etcd# ./bin/etcdctl --endpoints=//$HostIP:2379 member list
