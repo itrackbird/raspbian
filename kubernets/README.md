@@ -7,7 +7,7 @@
 在安装k8s之前，需要对系统环境进行配置
 
 * 关闭swap
-* 安装etcd
+* 集群etcd
 * 安装flannel
 
 #### 关闭swap
@@ -16,7 +16,7 @@
 
 在系统中用root用户执行`swapoff -a`来关闭虚拟内存
 
-```she
+```shell
 root@raspberrypi:/home/pi# swapoff -a
 root@raspberrypi:/home/pi# free -m
               total        used        free      shared  buff/cache   available
@@ -26,5 +26,67 @@ Swap:             0           0           0
 
 > **树莓派root登录参考[root用户设置](https://github.com/itrackbird/raspbian/blob/master/kubernets/root.md)**
 
-#### 安装etcd
+#### etcd集群
+
+搭建etcd集群是通过docker容器来搭建的，但是在etcd官方镜像无法直接运行在树莓派上，所以需要在树莓派中通过Dockerfile来构建我们的etcd镜像，之后在每个节点上运行etcd容器。
+
+#### etcd镜像
+
+在树莓派安装etcd需要进行源码编译，首先通过git下载etcd项目
+
+```she
+root@raspberrypi:/opt# git clone https://github.com/coreos/etcd.git
+```
+
+在etcd目录中会有Dockerfile文件，之后通过在本地`docker build`来制作etcd镜像
+
+```she
+root@raspberrypi:/opt/etcd# pwd
+/opt/etcd
+root@raspberrypi:/opt/etcd# ls Dockerfile
+Dockerfile
+root@raspberrypi:/opt/etcd# cat Dockerfile
+FROM golang
+ENV ETCD_UNSUPPORTED_ARCH arm
+ADD . /go/src/github.com/coreos/etcd
+ADD cmd/vendor /go/src/github.com/coreos/etcd/vendor
+RUN go install github.com/coreos/etcd
+EXPOSE 2379 2380
+ENTRYPOINT ["etcd"]
+```
+
+> **其中ENV ETCD_UNSUPPORTED_ARCH arm是需要手动添加的，不添加的话etcd无法启动**
+
+之后在源代码etcd目录中使用`docker build -t pzm .`，等待构建完成，之后我们就可以在树莓派上建立etcd集群。
+
+> **pzm是构建的镜像名称**
+
+#### etcd容器
+
+关于使用docker搭建etcd集群，可以参考[官方安装指导](https://coreos.com/etcd/docs/latest/op-guide/container.html#docker)来完成。
+
+首先，我们使用刚才构建好的etcd镜像来运行一个单点集群
+
+```sh
+export HostIP=192.168.137.24
+```
+
+> **将192.168.137.24修改成自己的ip地址**
+
+```she
+docker run -d -e ETCD_UNSUPPORTED_ARCH=arm -p 2380:2380 -p 2379:2379 --name etcd pzm --name etcd0 -advertise-client-urls http://${HostIP}:2379 -listen-client-urls http://0.0.0.0:2379 -initial-advertise-peer-urls http://${HostIP}:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster-1 -initial-cluster etcd0=http://${HostIP}:2380 -initial-cluster-state new
+```
+
+之后通过`etcdctl --endpoints=http://${NODE1}:2379 member list`来验证是否正确
+
+```shell
+root@raspberrypi:/opt/etcd# ./bin/etcdctl --endpoints=//$HostIP:2379 member list
+4379111a2ad8872f: name=etcd0 peerURLs=http://192.168.137.24:2380 clientURLs=http://192.168.137.24:2379 isLeader=true
+```
+
+以上我们就构建好我们自己的树莓派etcd镜像。
+
+#### etcd集群
+
+
 
