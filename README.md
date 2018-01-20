@@ -12,7 +12,7 @@
 
 - [ ] GPIO编程
 - [ ] Docker学习
-- [ ] [安装Kubernets](https://github.com/itrackbird/raspbian/kubernets)
+- [ ] [安装Kubernets](https://github.com/itrackbird/raspbian/tree/master/kubernets)
 - [ ] 智能家电
 - [ ] CI/CD搭建
 
