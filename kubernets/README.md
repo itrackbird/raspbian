@@ -59,7 +59,7 @@ ENTRYPOINT ["etcd"]
 
 之后在源代码etcd目录中使用`docker build -t pzm .`，等待构建完成，之后我们就可以在树莓派上建立etcd集群。
 
-> **pzm是构建的镜像名称**
+> **pzm是构建的镜像名称，之后将构建的镜像推送到[镜像仓库](https://github.com/itrackbird/raspbian/tree/master/kubernets/registry.md)**
 
 #### etcd容器
 
@@ -86,7 +86,7 @@ root@raspberrypi:/opt/etcd# ./bin/etcdctl --endpoints=//$HostIP:2379 member list
 
 以上我们就构建好我们自己的树莓派etcd镜像。
 
-#### etcd集群
+#### 集群安装
 
 
 
