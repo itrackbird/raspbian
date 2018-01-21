@@ -6,11 +6,79 @@
 
 在安装k8s之前，需要对系统环境进行配置
 
+* ssh免密码
+* ansible管理
+
+
 * 关闭swap
 * 集群etcd
 * 安装flannel
 
-#### 关闭swap
+### ssh免密码
+
+在安装k8s过程中是通过root用户操作，所以我们需要设置sshd，参考[root设置](https://github.com/itrackbird/raspbian/blob/master/kubernets/root.md)。在设置完毕后，通过expect脚本来实现免密码登录各个系统，首先安装`expect`
+
+```shell
+root@raspberrypi:/etc/apt/sources.list.d# apt-get install expect
+```
+
+之后，在各个系统中输入`ssh-keygen`来生成秘钥
+
+```shell
+root@raspberrypi:/etc/apt/sources.list.d# ssh-keygen
+```
+
+以上操作结束后，我们就准备好了exepct脚本需要的环境，然后从网上找到exepct脚本，如下
+
+```shell
+root@raspberrypi:/pzm/script# cat auto_ssh.sh
+#!/usr/bin/expect
+set timeout 10
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+set hostname [lindex $argv 2]
+spawn ssh-copy-id -f -i /root/.ssh/id_rsa.pub $username@$hostname
+expect {
+            #first connect, no public key in ~/.ssh/known_hosts
+            "Are you sure you want to continue connecting (yes/no)?" {
+            send "yes\r"
+            expect "password:"
+                send "$password\r"
+            }
+            #already has public key in ~/.ssh/known_hosts
+            "password:" {
+                send "$password\r"
+            }
+            "Now try logging into the machine" {
+                #it has authorized, do nothing!
+            }
+        }
+expect eof
+```
+
+之后，编写bash脚本来实现多系统之间免密码登录。
+
+```shell
+(env) root@raspberrypi:/pzm/script# cat setup.sh
+#!/usr/bin/env bash
+ips=`cat host.ip`
+passwd="123456"
+for ip in $ips
+do
+        echo "=========$ip==========="
+        ./auto_ssh.sh root $passwd $ip
+done
+```
+
+`setup.sh`实现读取host.ip文件中IP列表，之后调用`auto_ssh.sh`，然后我们执行`setup.sh`脚本即可实现免密码登录。
+
+### ansible安装
+
+Ansible基于Python语言实现，由paramiko和PyYAML两个关键模块构建。Ansible的编排引擎可以出色地完成配置管理，流程控制，资源部署等多方面工作。
+
+ansible安装方式通过pip模块来安装，输入`pip install ansible`等待完成即可，参考[ansible配置](https://github.com/itrackbird/raspbian/tree/master/kubernets/ansible.md)。应用场景主要是讲安装过程中通用配置文件通过批量复制，减少操作步骤。对于k8s在x86_64机器上安装k8s，也支持通过ansible来进行安装，可以参考github上一个开源项目[gjmzj/kubeasz](https://github.com/gjmzj/kubeasz)。
+
+### 关闭swap
 
 在k8s安装过程中不能存在swap虚拟内存，否则安装报错，参考官方kubernets说明。在系统中关闭swap主要有两种，临时关闭或者永久关闭，参考博文[关闭swap方式](https://www.xtplayer.cn/2017/10/3162)。
 
@@ -26,7 +94,7 @@ Swap:             0           0           0
 
 > **树莓派root登录参考[root用户设置](https://github.com/itrackbird/raspbian/blob/master/kubernets/root.md)**
 
-#### etcd集群
+### etcd集群
 
 搭建etcd集群是通过docker容器来搭建的，但是在etcd官方镜像无法直接运行在树莓派上，所以需要在树莓派中通过Dockerfile来构建我们的etcd镜像，之后在每个节点上运行etcd容器。
 
