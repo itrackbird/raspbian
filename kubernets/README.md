@@ -119,6 +119,9 @@ ENV ETCD_UNSUPPORTED_ARCH arm
 ADD . /go/src/github.com/coreos/etcd
 ADD cmd/vendor /go/src/github.com/coreos/etcd/vendor
 RUN go install github.com/coreos/etcd
+RUN mv /go/src/github.com/coreos/etcd/bin/etcdctl /go/bin
+RUN rm -rf /go/pkg
+RUN rm -rf /go/src
 EXPOSE 2379 2380
 ENTRYPOINT ["etcd"]
 ```
@@ -257,4 +260,4 @@ root@5aaf2eaadbfd:/go/src/github.com/coreos/etcd/bin# ./etcdctl member list
 b9d86b00134a973a: name=etcd-node-1 peerURLs=http://192.168.137.24:2380 clientURLs=http://192.168.137.24:2379 isLeader=false
 ```
 
-> ****
+> **对于公共部分变量，可以通过export方式写入本地文件，之后通过.或者source来生效环境变量，需要注意的是这种方式环境变量只会在当前窗口生效，退出后需要重新操作之前动作**
