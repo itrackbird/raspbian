@@ -16,7 +16,7 @@
 
 ### ssh免密码
 
-在安装k8s过程中是通过root用户操作，所以我们需要设置sshd，参考[root设置](https://github.com/itrackbird/raspbian/blob/master/kubernets/root.md)。在设置完毕后，通过expect脚本来实现免密码登录各个系统，首先安装`expect`
+在安装k8s过程中是通过root用户操作，所以我们需要设置sshd来支持root登录，参考[root设置](https://github.com/itrackbird/raspbian/blob/master/kubernets/root.md)。在设置完毕后，通过expect脚本来实现免密码登录各个系统，首先安装`expect`
 
 ```shell
 root@raspberrypi:/etc/apt/sources.list.d# apt-get install expect
@@ -59,7 +59,7 @@ expect eof
 之后，编写bash脚本来实现多系统之间免密码登录。
 
 ```shell
-(env) root@raspberrypi:/pzm/script# cat setup.sh
+root@raspberrypi:/pzm/script# cat setup.sh
 #!/usr/bin/env bash
 ips=`cat host.ip`
 passwd="123456"
@@ -156,5 +156,105 @@ root@raspberrypi:/opt/etcd# ./bin/etcdctl --endpoints=//$HostIP:2379 member list
 
 #### 集群安装
 
+```shell
+# For each machine
+TOKEN=my-etcd-token
+CLUSTER_STATE=new
+NAME_1=etcd-node-1
+NAME_2=etcd-node-2
+NAME_3=etcd-node-3
+NAME_4=etcd-node-4
+NAME_5=etcd-node-5
+HOST_1=192.168.137.24
+HOST_2=192.168.137.25
+HOST_3=192.168.137.26
+HOST_4=192.168.137.27
+HOST_5=192.168.137.28
+CLUSTER=${NAME_1}=http://${HOST_1}:2380,${NAME_2}=http://${HOST_2}:2380,${NAME_3}=http://${HOST_3}:2380,${NAME_4}=http://${HOST_4}:2380,${NAME_5}=http://${HOST_5}:2380
+DATA_DIR=/var/lib/etcd
 
+# For node 1
+export THIS_NAME=${NAME_1}
+export THIS_IP=192.168.137.24
+docker run -d --restart=always \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  --volume=${DATA_DIR}:/etcd-data \
+  --name etcd 192.168.137.28:5000/pzm/etcd \
+  --data-dir=/etcd-data --name ${THIS_NAME} \
+  --initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://0.0.0.0:2380 \
+  --advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://0.0.0.0:2379 \
+  --initial-cluster ${CLUSTER} \
+  --initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
 
+# For node 2
+export THIS_NAME=${NAME_2}
+export THIS_IP=192.168.137.25
+docker run -d --restart=always \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  --volume=${DATA_DIR}:/etcd-data \
+  --name etcd 192.168.137.28:5000/pzm/etcd \
+  --data-dir=/etcd-data --name ${THIS_NAME} \
+  --initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://0.0.0.0:2380 \
+  --advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://0.0.0.0:2379 \
+  --initial-cluster ${CLUSTER} \
+  --initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+
+# For node 3
+export THIS_NAME=${NAME_3}
+export THIS_IP=192.168.137.26
+docker run -d --restart=always \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  --volume=${DATA_DIR}:/etcd-data \
+  --name etcd 192.168.137.28:5000/pzm/etcd \
+  --data-dir=/etcd-data --name ${THIS_NAME} \
+  --initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://0.0.0.0:2380 \
+  --advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://0.0.0.0:2379 \
+  --initial-cluster ${CLUSTER} \
+  --initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+  
+  # For node 4
+export THIS_NAME=${NAME_4}
+export THIS_IP=192.168.137.27
+docker run -d --restart=always \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  --volume=${DATA_DIR}:/etcd-data \
+  --name etcd 192.168.137.28:5000/pzm/etcd \
+  --data-dir=/etcd-data --name ${THIS_NAME} \
+  --initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://0.0.0.0:2380 \
+  --advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://0.0.0.0:2379 \
+  --initial-cluster ${CLUSTER} \
+  --initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+  
+  # For node 5
+export THIS_NAME=${NAME_5}
+export THIS_IP=192.168.137.28
+docker run -d --restart=always \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  --volume=${DATA_DIR}:/etcd-data \
+  --name etcd 192.168.137.28:5000/pzm/etcd \
+  --data-dir=/etcd-data --name ${THIS_NAME} \
+  --initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://0.0.0.0:2380 \
+  --advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://0.0.0.0:2379 \
+  --initial-cluster ${CLUSTER} \
+  --initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+```
+
+> **以上将0.0.0.0改成对应节点IP会出现报错`tcp`绑定错误**
+
+分别到对应节点上运行对应etcd容器，之后进入一个etcd容器内部，通过`etcdctl`来查看集群状态
+
+```shell
+root@5aaf2eaadbfd:/go/src/github.com/coreos/etcd/bin# ./etcdctl member list
+27c693784a17ebff: name=etcd-node-3 peerURLs=http://192.168.137.26:2380 clientURLs=http://192.168.137.26:2379 isLeader=false
+5e869f5d862786f2: name=etcd-node-5 peerURLs=http://192.168.137.28:2380 clientURLs=http://192.168.137.28:2379 isLeader=false
+88315ed05b92103c: name=etcd-node-4 peerURLs=http://192.168.137.27:2380 clientURLs=http://192.168.137.27:2379 isLeader=false
+9c0586162af5992d: name=etcd-node-2 peerURLs=http://192.168.137.25:2380 clientURLs=http://192.168.137.25:2379 isLeader=true
+b9d86b00134a973a: name=etcd-node-1 peerURLs=http://192.168.137.24:2380 clientURLs=http://192.168.137.24:2379 isLeader=false
+```
+
+> ****
