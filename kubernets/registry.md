@@ -25,7 +25,7 @@ ARG GOOS=linux
 ARG GOARCH=arm
 
 RUN set -ex \
-    && apk add --no-cache make git
+    && apk add --no-cache make git libc-dev gcc make
 
 WORKDIR $DISTRIBUTION_DIR
 COPY . $DISTRIBUTION_DIR
